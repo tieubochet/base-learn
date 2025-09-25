@@ -4,8 +4,11 @@ import { baseSepolia } from 'wagmi/chains';
 
 // 1. Get projectId from https://cloud.walletconnect.com
 // This example uses a public projectId from the Web3Modal documentation.
-// For production, it is recommended to get your own projectId at https://cloud.walletconnect.com
-const projectId = '1e88029c31b53f025062c2f7339b13d5';
+// This is read from an environment variable to ensure security and flexibility for deployment.
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string;
+if (!projectId) {
+    throw new Error("VITE_WALLETCONNECT_PROJECT_ID is not set. Please add it to your .env file for local development, or to your Vercel project's environment variables.");
+}
 
 // 2. Create wagmiConfig
 const metadata = {
