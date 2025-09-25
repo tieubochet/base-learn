@@ -1,0 +1,5 @@
+{
+  "name": "Base Contract Deployer",
+  "description": "A simple web application to connect a wallet and deploy a standard 'Greeter' smart contract to the Base Sepolia testnet.",
+  "requestFramePermissions": []
+}
