@@ -1,20 +1,21 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Base Contract Deployer
 
-# Run and deploy your AI Studio app
+A simple web application to connect a wallet and deploy a standard 'Greeter' smart contract to the Base Sepolia testnet.
 
-This contains everything you need to run your app locally.
+This project serves as a straightforward example of a decentralized application (dApp) built with modern frontend tools.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1HOcEWk7LVPYshMrQQmK_6sKB9fVNkRNn
+## How to Use
 
-## Run Locally
+1.  **Connect Your Wallet:** Click the "Connect Wallet" button in the top right corner.
+2.  **Switch Network:** Make sure your wallet is set to the **Base Sepolia** testnet. The app will show a warning if you're on a different network.
+3.  **Get Testnet ETH:** You need testnet ETH to pay for transaction fees. You can get some from a [Base Faucet](https://www.base.org/faucet).
+4.  **Enter Greeting:** Type an initial greeting message for your contract (e.g., "Hello, World!").
+5.  **Deploy Contract:** Click the "Deploy" button and approve the transaction in your wallet.
+6.  **View on Explorer:** Once deployed, you'll see a success message with a link to view your new contract on the Base Sepolia block explorer.
 
-**Prerequisites:**  Node.js
+## Technologies Used
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+-   **React** & **TypeScript**
+-   **wagmi** & **viem** for Ethereum blockchain interactions
+-   **Web3Modal** for easy wallet connection
+-   **Tailwind CSS** for styling
