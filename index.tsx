@@ -16,7 +16,7 @@ const MissingProjectIdMessage = () => (
     <div className="bg-[#111827] border border-red-500/50 rounded-2xl p-8 max-w-lg text-center shadow-lg">
       <h1 className="text-3xl font-bold text-red-400 mb-4">Configuration Needed</h1>
       <p className="text-gray-300 mb-6">
-        Your WalletConnect Project ID has not been set. Please open the <code className="bg-gray-700 text-yellow-300 rounded px-2 py-1 text-sm">config.ts</code> file and add your Project ID.
+        Your WalletConnect Project ID has not been set. Please set the <code className="bg-gray-700 text-yellow-300 rounded px-2 py-1 text-sm">VITE_WALLETCONNECT_PROJECT_ID</code> environment variable.
       </p>
       <p className="text-gray-400 text-sm">
         You can get a Project ID from the <a href="https://cloud.walletconnect.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">WalletConnect Cloud</a> dashboard.
