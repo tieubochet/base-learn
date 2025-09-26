@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers5/react';
+import { useWeb3Modal, useWeb3ModalAccount } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?external=react';
 import { FaucetIcon, FollowIcon, SourceCodeIcon, WalletIcon } from '../constants';
 
 const Header: React.FC = () => {

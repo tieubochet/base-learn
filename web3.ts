@@ -1,9 +1,15 @@
-// Fix: Add a triple-slash directive to include Vite's client types. This resolves the error
-// "Property 'env' does not exist on type 'ImportMeta'" by providing the correct type definitions
-// for `import.meta.env` in a Vite project.
-/// <reference types="vite/client" />
+// Fix: Manually define the type for `import.meta.env` to avoid issues with
+// Vite's type definitions not being found in the environment. This resolves
+// errors related to `import.meta.env` being untyped.
+declare global {
+  interface ImportMeta {
+    readonly env: {
+      readonly VITE_WALLETCONNECT_PROJECT_ID: string;
+    }
+  }
+}
 
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
+import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?external=react';
 
 // 1. Get projectId from environment variables
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
