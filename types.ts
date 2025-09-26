@@ -1,13 +1,11 @@
-
-export enum BadgeStatus {
-  MINTABLE,
-  NOT_NEEDED,
-  MINTED,
+export enum ContractStatus {
+  ReadyToDeploy = 'Ready to deploy',
+  Deployed = 'Deployed',
 }
 
 export interface Contract {
-  id: string;
   name: string;
+  status: ContractStatus;
   dependencies?: string[];
-  badgeStatus: BadgeStatus;
+  mintable: boolean;
 }

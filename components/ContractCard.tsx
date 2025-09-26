@@ -1,86 +1,45 @@
 import React from 'react';
-import { useWeb3Modal, useWeb3ModalAccount } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?deps=react@18.2.0,react-dom@18.2.0';
-import { Contract, BadgeStatus } from '../types';
-import { LightningIcon, RocketIcon, BadgeIcon, WarningIcon, NoBadgeIcon } from '../constants';
+import type { Contract } from '../types';
+import { RocketIcon, BadgeIcon, LightningIcon, WarningIcon, NoBadgeIcon } from '../constants';
 
 interface ContractCardProps {
     contract: Contract;
 }
 
-const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
-    const { open } = useWeb3Modal();
-    const { isConnected } = useWeb3ModalAccount();
-
-    const handleAction = (action: () => void) => {
-        if (!isConnected) {
-            open();
-            return;
-        }
-        action();
-    };
-
-    const deployContract = () => {
-        alert(`Deploying ${contract.name}...`);
-        // Deploy logic here
-    };
-
-    const mintBadge = () => {
-        alert(`Minting badge for ${contract.name}...`);
-        // Mint logic here
-    };
-    
-    const getBadgeButton = () => {
-        switch (contract.badgeStatus) {
-            case BadgeStatus.MINTABLE:
-                return (
-                    <button onClick={() => handleAction(mintBadge)} className="flex-1 flex items-center justify-center text-sm font-medium bg-black text-white rounded-lg px-5 py-3 transition-all duration-200 hover:bg-gray-800">
-                        <BadgeIcon />
-                        Mint Badge
-                    </button>
-                );
-            case BadgeStatus.NOT_NEEDED:
-                return (
-                    <div className="flex-1 flex items-center justify-center text-sm font-medium bg-gray-900/50 text-gray-400 rounded-lg px-5 py-3 cursor-not-allowed">
-                        <NoBadgeIcon />
-                        No need to mint badge
-                    </div>
-                );
-            case BadgeStatus.MINTED:
-                 return (
-                    <button disabled className="flex-1 flex items-center justify-center text-sm font-medium bg-green-500/20 text-green-400 rounded-lg px-5 py-3 cursor-not-allowed">
-                        <BadgeIcon />
-                        Badge Minted
-                    </button>
-                );
-            default:
-                return null;
-        }
-    };
-    
+export const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
     return (
-        <div className="bg-[#111827]/60 border border-blue-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
-            <div>
-                <h3 className="text-2xl font-bold text-white mb-4">{contract.name}</h3>
-                <div className="flex items-center text-gray-300 text-sm mb-2">
-                    <LightningIcon />
-                    <span>Ready to deploy</span>
-                </div>
-                {contract.dependencies && contract.dependencies.length > 0 && (
-                     <div className="flex items-center text-yellow-400 text-xs mt-2 mb-4 p-2 bg-yellow-400/10 rounded-md">
-                        <WarningIcon />
-                        <span>Please deploy {contract.dependencies.join(' & ')} first</span>
-                    </div>
-                )}
+        <div className="bg-[#0D112B] bg-opacity-50 border border-blue-900/50 rounded-2xl p-6 shadow-2xl shadow-blue-500/5 backdrop-blur-sm">
+            <h2 className="text-2xl font-bold text-white mb-4">{contract.name}</h2>
+            
+            <div className="flex items-center text-sm text-gray-300 mb-4">
+                <LightningIcon />
+                <span>{contract.status}</span>
             </div>
-            <div className="mt-6 flex items-center space-x-3">
-                <button onClick={() => handleAction(deployContract)} className="flex-1 flex items-center justify-center text-sm font-bold bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-lg px-5 py-3 transition-all duration-200 hover:scale-105 shadow-[0_0_15px_rgba(77,189,255,0.4)]">
+
+            {contract.dependencies && contract.dependencies.length > 0 && (
+                <div className="flex items-center text-sm text-yellow-400 bg-yellow-900/30 border border-yellow-700/50 rounded-md p-2 mb-4">
+                    <WarningIcon />
+                    <span>Please deploy {contract.dependencies.join(' & ')} first</span>
+                </div>
+            )}
+
+            <div className="flex items-center space-x-4 mt-6">
+                <button className="flex-1 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-bold py-3 px-6 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:from-cyan-500 hover:to-blue-600 transition-all duration-300 flex items-center justify-center">
                     <RocketIcon />
                     Deploy
                 </button>
-                {getBadgeButton()}
+                {contract.mintable ? (
+                    <button className="flex-1 bg-black bg-opacity-40 text-gray-300 font-semibold py-3 px-6 border border-gray-700 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-300 flex items-center justify-center">
+                        <BadgeIcon />
+                        Mint Badge
+                    </button>
+                ) : (
+                    <div className="flex-1 bg-black bg-opacity-20 text-gray-500 font-semibold py-3 px-6 border border-gray-800 rounded-lg flex items-center justify-center cursor-not-allowed">
+                        <NoBadgeIcon />
+                        No need to mint badge
+                    </div>
+                )}
             </div>
         </div>
     );
 };
-
-export default ContractCard;

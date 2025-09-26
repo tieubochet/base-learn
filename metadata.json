@@ -1,5 +1,5 @@
 {
   "name": "Base Sepolia Contract Deployer",
-  "description": "A user interface to deploy smart contracts on the Base Sepolia testnet and mint corresponding NFT badges.",
+  "description": "A user interface to deploy and manage smart contracts on the Base Sepolia test network, inspired by a provided design.",
   "requestFramePermissions": []
 }
