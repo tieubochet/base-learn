@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './components/Header';
 import ContractCard from './components/ContractCard';
 import { contracts } from './constants';
-import { useWeb3Modal, useWeb3ModalAccount } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?external=react';
+import { useWeb3Modal, useWeb3ModalAccount } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?deps=react@18.2.0';
 
 const App: React.FC = () => {
   const { open } = useWeb3Modal();
