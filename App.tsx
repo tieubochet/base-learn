@@ -1,17 +1,31 @@
-
 import React from 'react';
 import Header from './components/Header';
 import ContractCard from './components/ContractCard';
 import { contracts } from './constants';
+import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers5/react';
 
 const App: React.FC = () => {
+  const { open } = useWeb3Modal();
+  const { isConnected } = useWeb3ModalAccount();
+
+  const handleCheckNFTs = () => {
+    if (!isConnected) {
+      open();
+      return;
+    }
+    // Placeholder for actual logic
+    alert('Wallet is connected. Checking for your NFTs...');
+  };
+
   return (
     <div className="min-h-screen text-white font-sans">
       <div className="container mx-auto px-4">
         <Header />
         <main className="py-8">
           <div className="flex flex-col items-center mb-10">
-            <button className="text-lg font-bold bg-gradient-to-r from-cyan-500 to-teal-400 text-white rounded-xl px-20 py-4 mb-4 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(45,212,191,0.5)]">
+            <button 
+              onClick={handleCheckNFTs}
+              className="text-lg font-bold bg-gradient-to-r from-cyan-500 to-teal-400 text-white rounded-xl px-20 py-4 mb-4 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(45,212,191,0.5)]">
               Check My NFTs
             </button>
             <div className="text-center text-gray-400">

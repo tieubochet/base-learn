@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers5/react';
 import { Contract, BadgeStatus } from '../types';
 import { LightningIcon, RocketIcon, BadgeIcon, WarningIcon, NoBadgeIcon } from '../constants';
 
@@ -8,12 +8,32 @@ interface ContractCardProps {
 }
 
 const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
+    const { open } = useWeb3Modal();
+    const { isConnected } = useWeb3ModalAccount();
+
+    const handleAction = (action: () => void) => {
+        if (!isConnected) {
+            open();
+            return;
+        }
+        action();
+    };
+
+    const deployContract = () => {
+        alert(`Deploying ${contract.name}...`);
+        // Deploy logic here
+    };
+
+    const mintBadge = () => {
+        alert(`Minting badge for ${contract.name}...`);
+        // Mint logic here
+    };
     
     const getBadgeButton = () => {
         switch (contract.badgeStatus) {
             case BadgeStatus.MINTABLE:
                 return (
-                    <button className="flex-1 flex items-center justify-center text-sm font-medium bg-black text-white rounded-lg px-5 py-3 transition-all duration-200 hover:bg-gray-800">
+                    <button onClick={() => handleAction(mintBadge)} className="flex-1 flex items-center justify-center text-sm font-medium bg-black text-white rounded-lg px-5 py-3 transition-all duration-200 hover:bg-gray-800">
                         <BadgeIcon />
                         Mint Badge
                     </button>
@@ -53,7 +73,7 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
                 )}
             </div>
             <div className="mt-6 flex items-center space-x-3">
-                <button className="flex-1 flex items-center justify-center text-sm font-bold bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-lg px-5 py-3 transition-all duration-200 hover:scale-105 shadow-[0_0_15px_rgba(77,189,255,0.4)]">
+                <button onClick={() => handleAction(deployContract)} className="flex-1 flex items-center justify-center text-sm font-bold bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-lg px-5 py-3 transition-all duration-200 hover:scale-105 shadow-[0_0_15px_rgba(77,189,255,0.4)]">
                     <RocketIcon />
                     Deploy
                 </button>
