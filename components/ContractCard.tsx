@@ -11,6 +11,7 @@ interface ContractCardProps {
 
 export const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
   const [deployedContractAddress, setDeployedContractAddress] = useState<string | null>(null);
+  const [args, setArgs] = useState<Record<string, string>>({});
 
   const { chain } = useAccount();
   const { data: hash, error, isPending, deployContract, reset } = useDeployContract();
@@ -25,18 +26,44 @@ export const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
     }
   }, [receipt]);
 
+  const handleArgChange = (name: string, value: string) => {
+    setArgs(prev => ({ ...prev, [name]: value }));
+  };
+  
   const handleDeploy = async () => {
     reset();
     setDeployedContractAddress(null);
-    // A contract with bytecode '0x0' is a placeholder
     if (contract.bytecode === '0x0') {
         alert("This contract's ABI and bytecode have not been added yet.");
         return;
     }
+    
+    let finalArgs: any[] = [];
+    if (contract.constructorInputs) {
+        for (const input of contract.constructorInputs) {
+            const value = args[input.name];
+            if (!value || value.trim() === '') {
+                alert(`Please provide a value for ${input.name}.`);
+                return;
+            }
+            if (input.type === 'number') {
+                try {
+                    // Use BigInt for all number types to support uint256 and prevent precision issues
+                    finalArgs.push(BigInt(value));
+                } catch {
+                    alert(`Invalid number format for ${input.name}.`);
+                    return;
+                }
+            } else {
+                finalArgs.push(value);
+            }
+        }
+    }
+
     deployContract({
       abi: contract.abi,
       bytecode: contract.bytecode,
-      args: [], // Assuming no constructor arguments for simplicity
+      args: finalArgs,
     });
   };
   
@@ -57,6 +84,22 @@ export const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
         </div>
 
         <div className="space-y-4">
+            {contract.constructorInputs && (
+                <div className="space-y-3">
+                    <h4 className="text-base font-semibold text-base-text-secondary">Constructor Arguments</h4>
+                    {contract.constructorInputs.map((input) => (
+                        <input
+                            key={input.name}
+                            type={input.type}
+                            placeholder={input.placeholder}
+                            value={args[input.name] || ''}
+                            onChange={(e) => handleArgChange(input.name, e.target.value)}
+                            className="w-full bg-slate-800 border border-slate-600 rounded-md px-3 py-2 text-sm text-base-text placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-base-blue transition-all"
+                        />
+                    ))}
+                </div>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-4">
                 <button
                 onClick={handleDeploy}
@@ -65,7 +108,7 @@ export const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
                 >
                 {isPending || isConfirming ? (
                     <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
