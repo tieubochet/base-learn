@@ -8,7 +8,8 @@ declare global {
 }
 
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
-import { baseSepolia } from 'wagmi/chains';
+// FIX: Module '"wagmi/chains"' has no exported member 'baseSepolia'. Import from 'viem/chains' instead.
+import { baseSepolia } from 'viem/chains';
 
 // 1. Get projectId from https://cloud.walletconnect.com
 // This is read from an environment variable to ensure security and flexibility for deployment.
@@ -20,8 +21,8 @@ if (!projectId) {
 
 // 2. Create wagmiConfig
 const metadata = {
-  name: 'Base Contract Deployer',
-  description: 'Deploy a contract to Base Sepolia',
+  name: 'Base BasicMath Deployer',
+  description: 'Deploy a BasicMath contract to Base Sepolia',
   url: 'https://web3modal.com',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };

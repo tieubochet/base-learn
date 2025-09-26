@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useDeployContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { CONTRACT_ABI, CONTRACT_BYTECODE } from '../constants/contract';
 import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
-import { baseSepolia } from 'wagmi/chains';
+// FIX: Module '"wagmi/chains"' has no exported member 'baseSepolia'. Import from 'viem/chains' instead.
+import { baseSepolia } from 'viem/chains';
 
 const Deployer: React.FC = () => {
-  const [greeting, setGreeting] = useState<string>('Hello, Base!');
   const [deployedContractAddress, setDeployedContractAddress] = useState<string | null>(null);
 
   const { chain } = useAccount();
@@ -25,14 +25,10 @@ const Deployer: React.FC = () => {
   const handleDeploy = async () => {
     reset();
     setDeployedContractAddress(null);
-    if (!greeting) {
-      alert("Please enter a greeting message.");
-      return;
-    }
     deployContract({
       abi: CONTRACT_ABI,
       bytecode: CONTRACT_BYTECODE,
-      args: [greeting],
+      args: [],
     });
   };
   
@@ -52,20 +48,6 @@ const Deployer: React.FC = () => {
   return (
     <div className="w-full max-w-2xl bg-base-surface p-8 rounded-lg shadow-2xl border border-slate-700">
       <div className="space-y-6">
-        <div>
-          <label htmlFor="greeting" className="block text-sm font-medium text-base-text-secondary mb-2 text-left">
-            Initial Greeting Message
-          </label>
-          <input
-            id="greeting"
-            type="text"
-            value={greeting}
-            onChange={(e) => setGreeting(e.target.value)}
-            className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-md focus:ring-2 focus:ring-base-blue focus:outline-none transition"
-            placeholder="Enter your greeting..."
-          />
-        </div>
-
         <button
           onClick={handleDeploy}
           disabled={isPending || isConfirming}
@@ -80,7 +62,7 @@ const Deployer: React.FC = () => {
                 <span>{isPending ? 'Awaiting Confirmation...' : 'Deploying...'}</span>
             </>
           ) : (
-            <span>Deploy Greeter Contract</span>
+            <span>Deploy BasicMath Contract</span>
           )}
         </button>
       </div>
@@ -98,7 +80,7 @@ const Deployer: React.FC = () => {
         )}
         {isConfirmed && deployedContractAddress && (
           <StatusCard title="Deployment Successful!" link={`${baseSepolia.blockExplorers.default.url}/address/${deployedContractAddress}`} success>
-            Your Greeter contract is live on Base Sepolia.
+            Your BasicMath contract is live on Base Sepolia.
           </StatusCard>
         )}
         {error && (
@@ -113,7 +95,6 @@ const Deployer: React.FC = () => {
             <h4 className="font-bold text-base-text mb-2">Instructions:</h4>
             <ul className="list-disc list-inside space-y-1">
                 <li>Make sure you have Base Sepolia testnet ETH. You can get some from a <a href="https://www.base.org/faucet" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Base Faucet</a>.</li>
-                <li>Enter a greeting message for your contract.</li>
                 <li>Click "Deploy" and approve the transaction in your wallet.</li>
             </ul>
         </div>
