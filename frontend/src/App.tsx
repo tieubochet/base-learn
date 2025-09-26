@@ -1,18 +1,19 @@
 
 import React from 'react';
 import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// FIX: Changed to a namespace import to handle potential module resolution issues.
+import * as tanstackReactQuery from '@tanstack/react-query';
 import { wagmiConfig } from './config/web3';
 import Header from './components/Header';
 import ContractGrid from './components/ContractGrid';
 import { useAccount } from 'wagmi';
 
-const queryClient = new QueryClient();
+const queryClient = new tanstackReactQuery.QueryClient();
 
 function App() {
   return (
     <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
+      <tanstackReactQuery.QueryClientProvider client={queryClient}>
         <div className="min-h-screen bg-base-background font-sans">
           <Header />
           <main className="container mx-auto px-4 py-8">
@@ -20,7 +21,7 @@ function App() {
           </main>
           <Footer />
         </div>
-      </QueryClientProvider>
+      </tanstackReactQuery.QueryClientProvider>
     </WagmiProvider>
   );
 }

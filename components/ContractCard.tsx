@@ -1,186 +1,127 @@
-import React, { useState, useEffect } from 'react';
-import { useDeployContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
-import { baseSepolia } from 'viem/chains';
-import { ContractInfo } from '../constants/contract';
-import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
-import { RocketIcon } from './icons/RocketIcon';
+import { Abi } from 'viem';
 
-interface ContractCardProps {
-  contract: ContractInfo;
+export const BADGE_CONTRACT = {
+  address: '0xAAff1d43B19cD26928Eb83eDa1e62bFF3AB13751' as `0x${string}`,
+  abi: [
+    {
+      "inputs": [
+        { "internalType": "string", "name": "_uri", "type": "string" }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+} as const;
+
+// Define an interface for the contract information
+export interface ContractInfo {
+  name: string;
+  abi: Abi;
+  bytecode: `0x${string}`;
+  hasBadge?: boolean;
+  badgeUri?: string;
+  dependencies?: string[];
+  constructorInputs?: {
+    name: string;
+    type: 'text' | 'number';
+    placeholder: string;
+  }[];
 }
 
-export const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
-  const [deployedContractAddress, setDeployedContractAddress] = useState<string | null>(null);
-  const [args, setArgs] = useState<Record<string, string>>({});
+// Helper for placeholder contracts
+const placeholderContract = (name: string, options: Partial<ContractInfo> = {}): ContractInfo => ({
+  name,
+  abi: [],
+  bytecode: '0x0',
+  hasBadge: true,
+  ...options,
+});
 
-  const { chain } = useAccount();
-  const { data: hash, error, isPending, deployContract, reset } = useDeployContract();
-
-  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
-    hash,
-  });
-  
-  useEffect(() => {
-    if (receipt?.contractAddress) {
-      setDeployedContractAddress(receipt.contractAddress);
-    }
-  }, [receipt]);
-
-  const handleArgChange = (name: string, value: string) => {
-    setArgs(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleDeploy = async () => {
-    reset();
-    setDeployedContractAddress(null);
-    if (contract.bytecode === '0x0') {
-        alert("This contract's ABI and bytecode have not been added yet.");
-        return;
-    }
-    
-    let finalArgs: any[] = [];
-    if (contract.constructorInputs) {
-        for (const input of contract.constructorInputs) {
-            const value = args[input.name];
-            if (!value || value.trim() === '') {
-                alert(`Please provide a value for ${input.name}.`);
-                return;
-            }
-            if (input.type === 'number') {
-                try {
-                    // Use BigInt for all number types to support uint256 and prevent precision issues
-                    finalArgs.push(BigInt(value));
-                } catch {
-                    alert(`Invalid number format for ${input.name}.`);
-                    return;
-                }
-            } else {
-                finalArgs.push(value);
-            }
+// Array of available contracts
+export const CONTRACTS: ContractInfo[] = [
+  {
+    name: 'BasicMath',
+    abi: [
+        {
+            "inputs": [
+                { "internalType": "uint256", "name": "_a", "type": "uint256" },
+                { "internalType": "uint256", "name": "_b", "type": "uint256" }
+            ],
+            "name": "adder",
+            "outputs": [
+                { "internalType": "uint256", "name": "sum", "type": "uint256" },
+                { "internalType": "bool", "name": "error", "type": "bool" }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                { "internalType": "uint256", "name": "_a", "type": "uint256" },
+                { "internalType": "uint256", "name": "_b", "type": "uint256" }
+            ],
+            "name": "subtractor",
+            "outputs": [
+                { "internalType": "uint256", "name": "difference", "type": "uint256" },
+                { "internalType": "bool", "name": "error", "type": "bool" }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
         }
-    }
-
-    deployContract({
-      abi: contract.abi,
-      bytecode: contract.bytecode,
-      args: finalArgs,
-    });
-  };
-  
-  const isWrongNetwork = chain?.id !== baseSepolia.id;
-  // For now, dependencies are just checked by name. A real implementation might check deployment status.
-  const hasUnmetDependencies = (contract.dependencies ?? []).length > 0;
-
-  return (
-    <div className="bg-base-surface p-6 rounded-lg shadow-lg border border-slate-700 flex flex-col justify-between space-y-4">
-        <div>
-            <h3 className="text-xl font-bold text-white mb-2">{contract.name}</h3>
-            <div className="text-sm text-base-text-secondary mb-4 space-y-1">
-                <p className="flex items-center"><span className="text-yellow-400 mr-2">⚡</span> Ready to deploy</p>
-                {hasUnmetDependencies && (
-                    <p className="flex items-center text-amber-400"><span className="mr-2">⚠️</span> Please deploy {contract.dependencies?.join(' & ')} first</p>
-                )}
-            </div>
-        </div>
-
-        <div className="space-y-4">
-            {contract.constructorInputs && (
-                <div className="space-y-3">
-                    <h4 className="text-base font-semibold text-base-text-secondary">Constructor Arguments</h4>
-                    {contract.constructorInputs.map((input) => (
-                        <input
-                            key={input.name}
-                            type={input.type}
-                            placeholder={input.placeholder}
-                            value={args[input.name] || ''}
-                            onChange={(e) => handleArgChange(input.name, e.target.value)}
-                            className="w-full bg-slate-800 border border-slate-600 rounded-md px-3 py-2 text-sm text-base-text placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-base-blue transition-all"
-                        />
-                    ))}
-                </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                onClick={handleDeploy}
-                disabled={isPending || isConfirming || isWrongNetwork || hasUnmetDependencies || contract.bytecode === '0x0'}
-                className="w-full flex-1 bg-base-blue hover:bg-base-blue-dark disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-[0_0_10px_rgba(0,82,255,0.5)]"
-                >
-                {isPending || isConfirming ? (
-                    <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>{isPending ? 'Confirm...' : 'Deploying...'}</span>
-                    </>
-                ) : (
-                    <>
-                        <RocketIcon className="h-5 w-5" />
-                        <span>Deploy</span>
-                    </>
-                )}
-                </button>
-                <button
-                    disabled={!contract.hasBadge}
-                    className="w-full flex-1 bg-slate-900 border border-slate-700 hover:bg-slate-800 disabled:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
-                >
-                    {contract.hasBadge ? 'Mint Badge' : 'No badge needed'}
-                </button>
-            </div>
-            
-            <div className="mt-4 space-y-2">
-                {isWrongNetwork && (
-                    <StatusCard type="error">
-                        Please switch to Base Sepolia network.
-                    </StatusCard>
-                )}
-                {hash && (
-                    <StatusCard type="info" link={`${baseSepolia.blockExplorers.default.url}/tx/${hash}`}>
-                        Transaction submitted.
-                    </StatusCard>
-                )}
-                {isConfirmed && deployedContractAddress && (
-                    <StatusCard type="success" link={`${baseSepolia.blockExplorers.default.url}/address/${deployedContractAddress}`}>
-                        Deployment successful!
-                    </StatusCard>
-                )}
-                {error && (
-                    <StatusCard type="error">
-                        <p className="truncate">Failed: {error.message}</p>
-                    </StatusCard>
-                )}
-            </div>
-        </div>
-    </div>
-  );
-};
-
-
-interface StatusCardProps {
-    children: React.ReactNode;
-    link?: string;
-    type: 'success' | 'error' | 'info';
-}
-
-const StatusCard: React.FC<StatusCardProps> = ({ children, link, type }) => {
-    const baseClasses = "px-3 py-2 rounded-md break-words text-left text-sm";
-    const colorClasses = {
-        success: "bg-green-900/50 border border-green-500/50 text-green-300",
-        error: "bg-red-900/50 border border-red-500/50 text-red-300",
-        info: "bg-blue-900/50 border border-blue-500/50 text-blue-300",
-    };
-
-    return (
-         <div className={`${baseClasses} ${colorClasses[type]}`}>
-            <div className="flex justify-between items-center">
-                <div className="flex-1 truncate">{children}</div>
-                {link && (
-                    <a href={link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 flex items-center space-x-1 hover:underline ml-2">
-                        <ExternalLinkIcon className="h-4 w-4" />
-                    </a>
-                )}
-            </div>
-        </div>
-    )
-}
+    ],
+    bytecode: '0x608060405234801561001057600080fd5b506101c5806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063866636c01461003b578063f2b3b8e41461008d575b600080fd5b61008b60048036038101906100869190610122565b6100df565b005b61008b60048036038101906100d8919061016d565b6040516001600160a01b03815260200180516001600160a01b03166001600160a01b03168152602001905080825260208201905092915050565b600080604083850312156100fa57600080fd5b8235919050565b60008160001a610118576001600160a01b0316fd5b9081019050610103565b60006020828403121561013457600080fd5b5035919050565b600080600080600060a01b03841661015657600080fd5b828101905061014e565b919050565b60006020828403121561017f57600080fd5b5035919050565b6000816001600160a01b031661019d57600080fd5b81019050610195565b91905056fea2646970667358221220a20e7d7c66922b9f36f98725893d50821df2220455c1b6a7a00f13031061aa9a64736f6c63430008110033',
+    hasBadge: true,
+    badgeUri: 'ipfs://bafkreicg44k65kf5nvemdhjlxnmk2gx7s7d53m5q2yopc2sxchgp3npeoy',
+  },
+  {
+    name: 'ControlStructures',
+    abi: [
+        { "inputs": [{ "internalType": "uint256", "name": "time", "type": "uint256" }], "name": "AfterHours", "type": "error" },
+        { "inputs": [], "name": "AtLunch", "type": "error" },
+        {
+            "inputs": [{ "internalType": "uint256", "name": "_time", "type": "uint256" }],
+            "name": "doNotDisturb",
+            "outputs": [{ "internalType": "string", "name": "result", "type": "string" }],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [{ "internalType": "uint256", "name": "_number", "type": "uint256" }],
+            "name": "fizzBuzz",
+            "outputs": [{ "internalType": "string", "name": "response", "type": "string" }],
+            "stateMutability": "pure",
+            "type": "function"
+        }
+    ],
+    bytecode: '0x608060405234801561001057600080fd5b506105c3806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80635534063514610046578063d890839c146100e4575b600080fd5b6100e260048036038101906100dd9190610363565b61019d565b005b6100e260048036038101906101989190610447565b610263565b600080604083850312156100fc57600080fd5b50359050565b60006020828403121561011457600080fd5b813567ffffffffffffffff81111561013057600080fd5b60208301915081358181111561014857600080fd5b9060200190813590602001906040019092919050565b60006020828403121561017357600080fd5b813567ffffffffffffffff81111561018f57600080fd5b60208301915081359050565b60008060001983146101b757600080fd5b600582030114156101e457600382030114156101e457600360058210156101d957600080fd5b506000905061022d565b60405160208183030381529060405280519060200190610214929190610499565b60405180910390fd5b60005b8181101561025a57600081600181101561024d57600080fd5b505060010190565b5060010190565b600060010181905550565b60006020828403121561027b57600080fd5b813567ffffffffffffffff81111561029757600080fd5b60208301915081359050565b600060038210156102c0576000915060058210156102c057600080fd5b50600081116102df57600080fd5b60008210156102ec57600080fd5b50610332565b60405160208183030381529060405280519060200190610319929190610499565b60405180910390fd5b60006080516020526040516000908190526001600160e01b031916815260200190565b60006020828403121561037557600080fd5b813567ffffffffffffffff81111561039157600080fd5b60208301915081359050565b60006022820181905550600081600894016103ba57600080fd5b6003208211156103c857600080fd5b6000546004376001600160a01b0316815214156103ea57600080fd5b600060228201819055506000816004f80161040657600080fd5b60051482111561041457600080fd5b6000546004376001600160a01b03168152141561043657600080fd5b60015460405181815290517f8b5b66d491f09e89b4f74d0080a2592759f2a033aa7c90858713d3958c895963909190604001900390a150565b60006020828403121561045957600080fd5b813567ffffffffffffffff81111561047557600080fd5b60208301915081359050565b60015460405181815290517f7d3d333000000000000000000000000000000000000000000000000000000000909190604001900390a150565b600081519050610494565b50565b6000602082840312156104a557600080fd5b5035919050565b600082198211156104dc57600060105a905060018210156104ce57600080fd5b5003905061051557600082198211156104fa57600060105a905060018210156104eb57600080fd5b50039050610557576000821982111561053657600060105a9050600182101561052757600080fd5b50039050610599576000821982111561057857600060105a9050600182101561056957600080fd5b500390506105ba57600082198211156105b457600060105a905060018210156105a557600080fd5b500390505b5b5b5b5b50505056fe',
+    hasBadge: true,
+    badgeUri: 'ipfs://bafkreihq55qh7n7xw7odev7zszhake5s2ecx2smywnlfgtovc3s5bztkue',
+  },
+  {
+    name: 'EmployeeStorage',
+    abi: [{"inputs":[{"internalType":"uint256","name":"_slot","type":"uint256"}],"name":"checkForPacking","outputs":[{"internalType":"uint256","name":"r","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"debugResetShares","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint16","name":"_newShares","type":"uint16"}],"name":"grantShares","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"idNumber","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"viewSalary","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"viewShares","outputs":[{"internalType":"uint16","name":"","type":"uint16"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint16","name":"_shares","type":"uint16"},{"internalType":"string","name":"_name","type":"string"},{"internalType":"uint32","name":"_salary","type":"uint32"},{"internalType":"uint256","name":"_idNumber","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"uint16","name":"_shares","type":"uint16"}],"name":"TooManyShares","type":"error"}],
+    bytecode: '0x608060405234801561001057600080fd5b50604051610991380380610991833981810160405281019061003291906103a1565b80600081905550600181905550336001600160a01b03167f4e487b7100000000000000000000000000000000000000000000000000000000600181169055506002819055505050610091565b610931806100a06000396000f3fe608060405234801561001057600080fd5b50600436106100a15760003560e01c80631627c26c146100a65780632095f550146100d05780632d5b6973146100e9578063590920d3146101135780636d4ce63c1461013457806395b22f2814610166578063c35a024c1461018d575b600080fd5b6100ce60048036038101906100c99190610582565b6101c0565b005b6100d86101f3565b6040516100e391906106b0565b60405180910390f35b6100ce60048036038101906100fb91906106e4565b610212565b61011b610228565b60405161012891906106b0565b60405180910390f35b610164600480360381019061015f9190610738565b61023e565b005b61017e600480360381019061017991906107a6565b6102a0565b005b610186600480360381019061018191906107e9565b6102f8565b005b61019561031d565b6040516101a291906106b0565b60405180910390f35b60008060025401600081905550565b60025490565b60006001600160a01b0316600090815260200190565b600060015490565b6001600160a01b0316600090815260200190565b600060025403600081905550565b60006001600160a01b038216600081815260200191506020016000818152602001915050600192915050565b6000600082540192505081905550565b600060009054906101000a90046001600160a01b03166001600160a01b031663a8a05d6960e01b179052565b600060e8036000819055506000600054905061031a565b90565b600060005481565b6000602082840312156103b357600080fd5b813567ffffffffffffffff8111156103cf57600080fd5b6020830191508135818111156103e757600080fd5b906020019060200190813590602001906040019092919050565b60006020828403121561041957600080fd5b50359050565b600080600080600060a01b038516600081815260200191506020016000818152602001915050600060a01b0383166000818152602001915060200160008181526020019150506000821660208181526000908152604001905060018190555060028190555060006001600160a01b0383168152602001905550565b6000602082840312156104c857600080fd5b813567ffffffffffffffff8111156104e457600080fd5b6020830191508135818111156104fc57600080fd5b9060200190813590602001906040019092919050565b60006020828403121561052e57600080fd5b813567ffffffffffffffff81111561054a57600080fd5b60208301915081359050565b60006020828403121561056f57600080fd5b50359050565b60006020828403121561059457600080fd5b50359050565b600080600080600060a01b038616600081815260200191506020016000818152602001915050600060a01b03851660008181526020019150602001600081815260200191505060006000841660208181526000908152604001905060018190555060028190555060006001600160a01b0383168152602001905550565b6000602082840312156106c257600080fd5b813567ffffffffffffffff8111156106de57600080fd5b60208301915081359050565b60006106f36108b3565b90506106fe565b90565b60006020828403121561071057600080fd5b50359050565b60006040828403121561072957600080fd5b50602081359050610732565b9050565b60006020828403121561074a57600080fd5b813567ffffffffffffffff81111561076657600080fd5b60208301915081359050565b60006000825401925050819055506000816013891461079c57600080fd5b60005481516001600160a01b0380821692909216602082019051610793919061081a565b506107d8565b6001600160a01b03811615156107b957600080fd5b60005481516001600160a01b03808216929092166020820190516107b2919061081a565b6000825401505050565b6000602082840312156107fb57600080fd5b813567ffffffffffffffff81111561081757600080fd5b60208301915081359050565b60006020828403121561082c57600080fd5b50359050565b6000600060006000600060a01b038716600081815260200191506020016000818152602001915050600060a01b03861660008181526020019150602001600081815260200191505060006000851660208181526000908152604001905060018190555060028190555060006001600160a01b0384168152602001905550565b6000815190506108ad565b50565b60008060005490506108b0565b9056fea26469706673582212204c3e8006d641d4c2299d63ab466601c4c1a5996058a5c2d3080e22797e8841a164736f6c63430008110033',
+    hasBadge: true,
+    badgeUri: 'ipfs://bafkreifk5ug5gwcove45n5zce5ds2wdvqce2findwpr4pv7llvvhnsi22y',
+    constructorInputs: [
+      { name: '_shares', type: 'number', placeholder: 'Shares (e.g., 1000)' },
+      { name: '_name', type: 'text', placeholder: 'Name (e.g., "Alice")' },
+      { name: '_salary', type: 'number', placeholder: 'Salary (e.g., 60000)' },
+      { name: '_idNumber', type: 'number', placeholder: 'ID (e.g., 123)' },
+    ],
+  },
+  placeholderContract('ArraysExercise', { badgeUri: 'ipfs://bafkreidrp3vll52gnute7jnnv3yrwshp2iloq62f4hx5e7c22zuzcrl6ba' }),
+  placeholderContract('FavoriteRecords', { badgeUri: 'ipfs://bafkreihijy2qayzse26yf2hbsj4c2j2nrof2ldb7w3g6qbsjpxb3b4g5eq' }),
+  placeholderContract('GarageManager', { badgeUri: 'ipfs://bafkreihq55qh7n7xw7odev7zszhake5s2ecx2smywnlfgtovc3s5bztkue' }),
+  placeholderContract('Salesperson', { hasBadge: false }),
+  placeholderContract('EngineeringManager', { hasBadge: false }),
+  placeholderContract('InheritanceSubmission', { dependencies: ['Salesperson', 'EngineeringManager'], badgeUri: 'ipfs://bafkreidrp3vll52gnute7jnnv3yrwshp2iloq62f4hx5e7c22zuzcrl6ba' }),
+  placeholderContract('ImportsExercise', { badgeUri: 'ipfs://bafkreibmcnq2gudj77b6st7flaxb7ev3mh2t6wuftu3mqy2v6svvqoisli' }),
+  placeholderContract('ErrorTriageExercise', { badgeUri: 'ipfs://bafkreibmcnq2gudj77b6st7flaxb7ev3mh2t6wuftu3mqy2v6svvqoislq' }),
+  placeholderContract('AddressBookFactory', { badgeUri: 'ipfs://bafkreidrp3vll52gnute7jnnv3yrwshp2iloq62f4hx5e7c22zuzcrl6ba' }),
+  placeholderContract('UnburnableToken', { badgeUri: 'ipfs://bafkreifk5ug5gwcove45n5zce5ds2wdvqce2findwpr4pv7llvvhnsi22y' }),
+  placeholderContract('WeightedVoting', { badgeUri: 'ipfs://bafkreihijy2qayzse26yf2hbsj4c2j2nrof2ldb7w3g6qbsjpxb3b4g5eq' }),
+  placeholderContract('HaikuNFT', { badgeUri: 'ipfs://bafkreihq55qh7n7xw7odev7zszhake5s2ecx2smywnlfgtovc3s5bztkue' }),
+];
