@@ -31,10 +31,10 @@ const MainContent: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center text-center">
       <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-        Deploy a BasicMath Contract on Base
+        Deploy Smart Contracts on Base
       </h1>
       <p className="text-base-text-secondary mb-8 max-w-2xl">
-        Connect your wallet to the Base Sepolia testnet and deploy your own 'BasicMath' smart contract with a single click. This contract provides safe addition and subtraction functions.
+        Connect your wallet to the Base Sepolia testnet and deploy a pre-defined smart contract with a single click. Choose from a selection of contracts and get it live in minutes.
       </p>
 
       {isConnected ? (

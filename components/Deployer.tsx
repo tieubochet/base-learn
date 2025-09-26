@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 // FIX: Replaced `useWriteContract` with `useDeployContract` for contract deployment, as it's the correct hook for this action.
 import { useDeployContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
-import { CONTRACT_ABI, CONTRACT_BYTECODE } from '../constants/contract';
+import { CONTRACTS } from '../constants/contract';
 import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
 // FIX: Module '"wagmi/chains"' has no exported member 'baseSepolia'. Import from 'viem/chains' instead.
 import { baseSepolia } from 'viem/chains';
 
 const Deployer: React.FC = () => {
   const [deployedContractAddress, setDeployedContractAddress] = useState<string | null>(null);
+  // Add state to manage which contract is selected from the dropdown
+  const [selectedContractName, setSelectedContractName] = useState<string>(CONTRACTS[0].name);
 
   const { chain } = useAccount();
   const { data: hash, error, isPending, deployContract, reset } = useDeployContract();
@@ -15,6 +17,10 @@ const Deployer: React.FC = () => {
   const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
     hash,
   });
+  
+  // Find the full contract object based on the selected name
+  const selectedContract = CONTRACTS.find(c => c.name === selectedContractName);
+
 
   useEffect(() => {
     if (receipt?.contractAddress) {
@@ -23,12 +29,14 @@ const Deployer: React.FC = () => {
   }, [receipt]);
 
   const handleDeploy = async () => {
+    if (!selectedContract) return; // Guard clause if no contract is selected
+
     reset();
     setDeployedContractAddress(null);
     deployContract({
-      abi: CONTRACT_ABI,
-      bytecode: CONTRACT_BYTECODE,
-      args: [],
+      abi: selectedContract.abi,
+      bytecode: selectedContract.bytecode,
+      args: [], // Neither contract has constructor arguments
     });
   };
   
@@ -48,9 +56,32 @@ const Deployer: React.FC = () => {
   return (
     <div className="w-full max-w-2xl bg-base-surface p-8 rounded-lg shadow-2xl border border-slate-700">
       <div className="space-y-6">
+        {/* New dropdown for contract selection */}
+        <div className="space-y-2">
+          <label htmlFor="contract-select" className="block text-sm font-medium text-base-text-secondary text-left">
+            Select a contract to deploy:
+          </label>
+          <select
+            id="contract-select"
+            value={selectedContractName}
+            onChange={(e) => {
+                setSelectedContractName(e.target.value);
+                reset(); // Reset deployment state when changing contract
+                setDeployedContractAddress(null);
+            }}
+            className="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-base-text focus:outline-none focus:ring-2 focus:ring-base-blue"
+          >
+            {CONTRACTS.map((contract) => (
+              <option key={contract.name} value={contract.name}>
+                {contract.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
         <button
           onClick={handleDeploy}
-          disabled={isPending || isConfirming}
+          disabled={isPending || isConfirming || !selectedContract}
           className="w-full bg-base-blue hover:bg-base-blue-dark disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
         >
           {isPending || isConfirming ? (
@@ -62,7 +93,8 @@ const Deployer: React.FC = () => {
                 <span>{isPending ? 'Awaiting Confirmation...' : 'Deploying...'}</span>
             </>
           ) : (
-            <span>Deploy BasicMath Contract</span>
+            // Dynamic button text
+            <span>Deploy {selectedContract?.name} Contract</span>
           )}
         </button>
       </div>
@@ -80,7 +112,8 @@ const Deployer: React.FC = () => {
         )}
         {isConfirmed && deployedContractAddress && (
           <StatusCard title="Deployment Successful!" link={`${baseSepolia.blockExplorers.default.url}/address/${deployedContractAddress}`} success>
-            Your BasicMath contract is live on Base Sepolia.
+            {/* Dynamic success message */}
+            Your {selectedContract?.name} contract is live on Base Sepolia.
           </StatusCard>
         )}
         {error && (
@@ -95,6 +128,7 @@ const Deployer: React.FC = () => {
             <h4 className="font-bold text-base-text mb-2">Instructions:</h4>
             <ul className="list-disc list-inside space-y-1">
                 <li>Make sure you have Base Sepolia testnet ETH. You can get some from a <a href="https://www.base.org/faucet" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Base Faucet</a>.</li>
+                <li>Select the desired contract from the dropdown menu.</li>
                 <li>Click "Deploy" and approve the transaction in your wallet.</li>
             </ul>
         </div>
