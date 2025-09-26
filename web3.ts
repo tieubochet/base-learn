@@ -1,8 +1,13 @@
-// Fix: Add triple-slash directive to include Vite client types, resolving the error on `import.meta.env`.
-/// <reference types="vite/client" />
+// Fix: Manually define the `ImportMeta` interface for `import.meta.env` to resolve TypeScript errors.
+interface ImportMeta {
+  readonly env: {
+    readonly VITE_WALLETCONNECT_PROJECT_ID: string;
+  };
+}
 
 // Fix: Renamed `defaultEthersConfig` to `defaultConfig` to fix the import error.
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
+// Fix: Use full CDN URL for import to solve Vercel build issue.
+import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react';
 
 // 1. Get projectId from environment variables
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
