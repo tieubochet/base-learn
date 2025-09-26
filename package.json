@@ -1,5 +1,5 @@
 {
-  "name": "base-contract-deployer",
+  "name": "base-sepolia-contract-deployer",
   "private": true,
   "version": "0.0.0",
   "type": "module",

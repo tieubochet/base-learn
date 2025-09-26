@@ -1,21 +1,35 @@
-# Base Contract Deployer
+# Base Smart Contract Monorepo
 
-A simple web application to connect a wallet and deploy a standard 'Greeter' smart contract to the Base Sepolia testnet.
+A monorepo containing a user-friendly dApp to deploy a curated list of smart contracts to the Base Sepolia testnet.
 
-This project serves as a straightforward example of a decentralized application (dApp) built with modern frontend tools.
+## Project Structure
 
-## How to Use
+This project is structured as a monorepo to separate concerns between the smart contracts and the frontend application.
 
-1.  **Connect Your Wallet:** Click the "Connect Wallet" button in the top right corner.
-2.  **Switch Network:** Make sure your wallet is set to the **Base Sepolia** testnet. The app will show a warning if you're on a different network.
-3.  **Get Testnet ETH:** You need testnet ETH to pay for transaction fees. You can get some from a [Base Faucet](https://www.base.org/faucet).
-4.  **Enter Greeting:** Type an initial greeting message for your contract (e.g., "Hello, World!").
-5.  **Deploy Contract:** Click the "Deploy" button and approve the transaction in your wallet.
-6.  **View on Explorer:** Once deployed, you'll see a success message with a link to view your new contract on the Base Sepolia block explorer.
+-   `/contracts`: Contains the Solidity smart contracts. (Coming soon)
+-   `/frontend`: Contains the React-based frontend application.
+-   `/deploy`: Contains deployment scripts. (Coming soon)
+-   `/test`: Contains tests for the smart contracts. (Coming soon)
+
+## Frontend Application
+
+The frontend is a React application built with TypeScript, wagmi, and Tailwind CSS.
+
+### How to Use
+
+1.  **Connect Your Wallet:** Click "Connect Wallet" in the top right.
+2.  **Select Network:** Ensure your wallet is on the **Base Sepolia** testnet.
+3.  **Get Testnet ETH:** Use the "Faucet" link to get testnet ETH for gas fees.
+4.  **Deploy a Contract:**
+    -   Find the contract you want to deploy from the grid.
+    -   If required, fill in the constructor arguments.
+    -   Click "Deploy" and confirm the transaction in your wallet.
+5.  **View on Explorer:** A success message will appear with a link to your deployed contract on the block explorer.
 
 ## Technologies Used
 
 -   **React** & **TypeScript**
 -   **wagmi** & **viem** for Ethereum blockchain interactions
--   **Web3Modal** for easy wallet connection
+-   **Web3Modal** for wallet connection
 -   **Tailwind CSS** for styling
+-   **Solidity** for smart contracts (Coming soon)
