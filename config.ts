@@ -14,4 +14,4 @@ declare global {
 // The WalletConnect Project ID is loaded from the VITE_WALLETCONNECT_PROJECT_ID environment variable.
 // For Vercel deployments, ensure your project is configured with the "Vite" framework preset.
 // This allows Vercel's build process to correctly substitute the environment variable.
-export const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '';
+export const projectId = import.meta.env?.VITE_WALLETCONNECT_PROJECT_ID || '';

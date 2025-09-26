@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWeb3Modal, useWeb3ModalAccount } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?deps=react@18.2.0';
+import { useWeb3Modal, useWeb3ModalAccount } from 'https://esm.sh/@web3modal/ethers5@3.5.1/react?deps=react@18.2.0,react-dom@18.2.0';
 import { Contract, BadgeStatus } from '../types';
 import { LightningIcon, RocketIcon, BadgeIcon, WarningIcon, NoBadgeIcon } from '../constants';
 
