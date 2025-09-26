@@ -1,5 +1,5 @@
 {
-  "name": "Base Contract Deployer",
-  "description": "A simple web application to connect a wallet and deploy various smart contracts to the Base Sepolia testnet.",
+  "name": "Base Sepolia Contract Deployer",
+  "description": "A user-friendly interface to deploy a curated list of smart contracts to the Base Sepolia testnet and mint commemorative badges.",
   "requestFramePermissions": []
 }

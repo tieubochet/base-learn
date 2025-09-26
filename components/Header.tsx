@@ -1,23 +1,45 @@
-
 import React from 'react';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount, useDisconnect, useEnsName } from 'wagmi';
 import { WalletIcon } from './icons/WalletIcon';
 import { truncateAddress } from '../utils/helpers';
+import { FaucetIcon } from './icons/FaucetIcon';
+import { TwitterIcon } from './icons/TwitterIcon';
+import { GithubIcon } from './icons/GithubIcon';
 
 const Header: React.FC = () => {
   return (
-    <header className="py-4 px-4 md:px-8 border-b border-slate-800">
+    <header className="py-4 px-4 md:px-8">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-            <svg width="32" height="32" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="#0052FF"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M512 0C229.232 0 0 229.232 0 512s229.232 512 512 512 512-229.232 512-512S794.768 0 512 0zm0 896c-212.064 0-384-171.936-384-384s171.936-384 384-384 384 171.936 384 384-171.936 384-384 384z"></path></g></svg>
-            <h1 className="text-xl font-bold text-white">BaseContractDeployer</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-white whitespace-nowrap">Base Sepolia Contract Deployer</h1>
+        <div className="flex items-center space-x-2 md:space-x-4">
+            <HeaderButton href="https://www.base.org/faucet" icon={<FaucetIcon />} text="Faucet" />
+            <HeaderButton href="#" icon={<TwitterIcon />} text="Follow Me" />
+            <HeaderButton href="#" icon={<GithubIcon />} text="Source Code" />
+            <ConnectButton />
         </div>
-        <ConnectButton />
       </div>
     </header>
   );
 };
+
+interface HeaderButtonProps {
+    href: string;
+    icon: React.ReactNode;
+    text: string;
+}
+
+const HeaderButton: React.FC<HeaderButtonProps> = ({ href, icon, text }) => (
+    <a 
+        href={href} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="hidden md:flex items-center space-x-2 px-4 py-2 font-semibold text-white bg-base-surface hover:bg-slate-800 rounded-full transition-colors border border-slate-700"
+    >
+        {icon}
+        <span>{text}</span>
+    </a>
+)
 
 const ConnectButton: React.FC = () => {
   const { open } = useWeb3Modal();
@@ -29,7 +51,7 @@ const ConnectButton: React.FC = () => {
 
   return isConnected ? (
     <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2 bg-base-surface px-4 py-2 rounded-full">
+        <div className="hidden md:flex items-center space-x-2 bg-base-surface px-4 py-2 rounded-full border border-slate-700">
             <WalletIcon className="h-5 w-5 text-base-blue" />
             <span className="font-mono text-sm">{displayAddress}</span>
         </div>
@@ -43,7 +65,7 @@ const ConnectButton: React.FC = () => {
   ) : (
     <button
       onClick={() => open()}
-      className="px-6 py-2 font-semibold text-white bg-base-blue hover:bg-base-blue-dark rounded-full transition-colors"
+      className="px-6 py-2 font-semibold text-white bg-base-blue hover:bg-base-blue-dark rounded-full transition-colors shadow-[0_0_10px_rgba(0,82,255,0.5)]"
     >
       Connect Wallet
     </button>

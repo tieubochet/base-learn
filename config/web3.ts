@@ -21,7 +21,7 @@ if (!projectId) {
 
 // 2. Create wagmiConfig
 const metadata = {
-  name: 'Base Contract Deployer',
+  name: 'Base Sepolia Contract Deployer',
   description: 'Deploy various smart contracts to Base Sepolia',
   url: 'https://web3modal.com',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
